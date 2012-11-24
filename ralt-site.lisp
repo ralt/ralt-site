@@ -14,14 +14,12 @@
 
 (defpage (:posts/new)
   "Form response"
-  (if (hunchentoot:post-parameters*)
-    (progn
-      (add-post (alist-to-plist (hunchentoot:post-parameters*)))
-      "I haz")))
+  (when (hunchentoot:post-parameters*)
+    (add-post (alist-to-plist (hunchentoot:post-parameters*)))
+    "I haz"))
 
 (defun alist-to-plist (alist)
   "Transforms ((k . v) (k1 . v1)) into (:k v :k1 v1)"
-  "alexandria:alist:to:plist, basically :-)"
   (list
     (mapcan #'(lambda (item)
                 (let ((key (intern (string-upcase (car item)) "KEYWORD"))
