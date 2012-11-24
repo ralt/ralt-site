@@ -42,7 +42,7 @@
 
 (defpage (:posts)
   (standard-page "posts"
-                 (loop for post in (get-posts) collect (<:p post))))
+                 (loop for post in (get-posts) collect (<:p (getf post :title)))))
 
 (defpage (:posts id)
   (let ((post (car (get-post id))))
@@ -61,4 +61,4 @@
                  *posts*))
 
 (defun get-posts ()
-  '("1" "2" "3" "4"))
+  *posts*)
