@@ -13,64 +13,53 @@
                   (<:p "yay the site is up!"))))
 
 (defpage (:posts/new)
+  "Form response"
   (if (hunchentoot:post-parameters*)
-    (let ((title (hunchentoot:post-parameter "title")) (content (hunchentoot:post-parameter "content")))
-      (add-post '(:title title :content content)))))
+    (progn
+      (add-post (alist-to-plist (hunchentoot:post-parameters*)))
+      "I haz")))
+
+(defun alist-to-plist (alist)
+  "Transforms ((k . v) (k1 . v1)) into (:k v :k1 v1)"
+  "alexandria:alist:to:plist, basically :-)"
+  (list
+    (mapcan #'(lambda (item)
+                (let ((key (intern (string-upcase (car item)) "KEYWORD"))
+                      (value (cdr item)))
+                  (list key value)))
+            alist)))
 
 (defun add-post (post)
   (setf *posts* (append *posts* post)))
 
-(defun alist-json (alist)
-  (let ((object (jsown:empty-object)))
-    (loop for (key . value) in alist do
-          (setf (jsown:val object key) value))
-    object))
-
-(defjson (:json)
-  "I haz")
-
-(defpage (:test)
-  (setf (hunchentoot:content-type*) "application/json")
-  (if (hunchentoot:post-parameters*)
-    (jsown:to-json "I haz")
-    (jsown:to-json "I haz not")))
-
-;; works for http://localhost:8080/hello/Markus
-(defpage (:hello name)
-  (<:html (<:head (<:title "hello " name))
-          (<:body (<:p "hey there " name ", hello!"))))
-
 (defun standard-page (title &rest content)
+  "Defines template"
   (<:html (<:head
             (<:meta :charset "utf-8")
             (<:title "ralt-site :: " title))
           (<:body content)))
 
-;; works for http://localhost:8080/books/a history of time/authors/E.Naggum/
-(defpage (:books book-name :authors author-name)
-  (standard-page (s+ "author for " book-name)
-                 (<:p "you're looking at author " author-name " for " book-name)
-                 (<:ul (loop for i from 0 below 10 collect (<:li "item number " i)))))
-
 (defpage (:posts)
+  "Lists of posts"
   (standard-page "posts"
                  (loop for post in (get-posts) collect (<:p (getf post :title)))))
 
 (defpage (:posts id)
+  "Shows single post"
   (let ((post (car (get-post id))))
     (standard-page (s+ "post: " (getf post :title))
                    (getf post :content))))
 
-(defjson (:json id)
-  (alist-json (get-post id)))
-
+;;; Default list
 (defparameter *posts* '((:id 1 :title "title1" :content "<p>some</p><p>paragraph</p>")
                   (:id 2 :title "title2" :content "<h1>text</h1>")))
 
 (defun get-post (id)
+  "Gets one post"
   (remove-if-not #'(lambda (item)
                      (= (parse-integer id) (getf item :id)))
                  *posts*))
 
 (defun get-posts ()
+  "Shows all posts"
   *posts*)

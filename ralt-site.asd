@@ -2,11 +2,10 @@
 
 (asdf:defsystem #:ralt-site
   :serial t
-  :description "Describe ralt-site here"
-  :author "Your Name <your.name@example.com>"
-  :license "Specify license here"
+  :description "My first Common Lisp project"
+  :author "Florian Margaine <florian@margaine.com>"
+  :license "MIT License"
   :depends-on (#:sexml
-               #:jsown
                #:hunchentoot)
   :components ((:file "package")
                (:file "framework")
