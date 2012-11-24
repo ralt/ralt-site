@@ -36,7 +36,7 @@
        hunchentoot:*dispatch-table*)))
 
 (defmacro defjson ((&rest components) &body body)
-  `(defpage ,components
+  `(defpage (,@components)
     (setf (hunchentoot:content-type*) "application/json")
     (jsown:to-json ,@body)))
 

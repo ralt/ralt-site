@@ -12,7 +12,19 @@
           (<:body (<:h1 :class "some-class" "Booyah!")
                   (<:p "yay the site is up!"))))
 
-(defun alist-json (alist) (let ((object (jsown:empty-object))) (loop for (key . value) in alist do (setf (jsown:val object key) value)) object))
+(defpage (:posts/new)
+  (if (hunchentoot:post-parameters*)
+    (let ((title (hunchentoot:post-parameter "title")) (content (hunchentoot:post-parameter "content")))
+      (add-post '(:title title :content content)))))
+
+(defun add-post (post)
+  (setf *posts* (append *posts* post)))
+
+(defun alist-json (alist)
+  (let ((object (jsown:empty-object)))
+    (loop for (key . value) in alist do
+          (setf (jsown:val object key) value))
+    object))
 
 (defjson (:json)
   "I haz")
@@ -50,7 +62,7 @@
                    (getf post :content))))
 
 (defjson (:json id)
-  (get-post id))
+  (alist-json (get-post id)))
 
 (defparameter *posts* '((:id 1 :title "title1" :content "<p>some</p><p>paragraph</p>")
                   (:id 2 :title "title2" :content "<h1>text</h1>")))
